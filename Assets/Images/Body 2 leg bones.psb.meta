@@ -96,8 +96,8 @@ ScriptedImporter:
   rigSpriteImportData:
   - name: Leg_R
     originalName: 
-    pivot: {x: 0.5, y: 0.5}
-    alignment: 0
+    pivot: {x: 0.1772219, y: 0.9907611}
+    alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     rect:
       serializedVersion: 2
@@ -811,8 +811,8 @@ ScriptedImporter:
     spritePosition: {x: 424, y: 100}
   - name: Leg_L
     originalName: 
-    pivot: {x: 0.5, y: 0.5}
-    alignment: 0
+    pivot: {x: 0.1772218, y: 0.9981815}
+    alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     rect:
       serializedVersion: 2
