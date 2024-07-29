@@ -7,12 +7,21 @@ public class BodyMovement : MonoBehaviour
     [SerializeField] private List<LegMovement> legs;
     [SerializeField] private float speed = 3f;
     public float lastMoveTime = 0f;
-    private bool isSnapped = false;
+    public bool forceSnap = false;
     public float timeToSnap = 0.35f;
     [SerializeField] private int activeLegIdx = 0;
     public float movementMagnitude = 0f;
 
+    [Header("Spring force")]
+    [SerializeField] private float floatHeight = 1.4f;
+    [SerializeField] private float floatSpringStrength = 30f;
+    [SerializeField] private float floatSpringDamper = 5f;
+    [SerializeField] private float heightCheckDistance = 2f;
+    [SerializeField] private LayerMask springCheckLayer;
+    private Rigidbody2D rb;
+
     public static BodyMovement instance;
+
     private void Awake()
     {
         if (instance == null) instance = this;
@@ -26,6 +35,8 @@ public class BodyMovement : MonoBehaviour
     {
         if (activeLegIdx >= legs.Count) activeLegIdx = 0;
         legs[activeLegIdx].updateActiveLeg(true);
+
+        rb = GetComponent<Rigidbody2D>();
     }
 
     void Update()
@@ -40,10 +51,12 @@ public class BodyMovement : MonoBehaviour
         {
             lastMoveTime = Time.time;
             transform.position += movement * speed * Time.deltaTime;
-            isSnapped = false;
+            forceSnap = false;
         }
 
-        // if (Time.time - lastMoveTime > timeToSnap && !isSnapped) snapAllLegs();
+        if (Time.time - lastMoveTime > timeToSnap && !forceSnap) forceSnap = true;
+
+        springFloat();
     }
 
     public void onLegSnap(LegMovement leg)
@@ -54,13 +67,42 @@ public class BodyMovement : MonoBehaviour
         legs[activeLegIdx].updateActiveLeg(true);
     }
 
-    private void snapAllLegs()
+    private void springFloat()
     {
-        Debug.Log("should snap based on time");
-        foreach (LegMovement leg in legs)
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, heightCheckDistance, springCheckLayer);
+
+        if (hit.collider != null)
         {
-            leg.snapToTarget(false);
+            Debug.Log("Hit: " + hit.collider.gameObject.name);
+            Vector2 velocity = rb.velocity;
+            Vector2 rayDirection = Vector2.down;
+
+            Vector2 hitBodyVel = Vector2.zero;
+            Rigidbody2D hitBody = hit.rigidbody;
+            if (hitBody != null)
+            {
+                hitBodyVel = hitBody.velocity;
+            }
+
+            float rayDirVelocity = Vector2.Dot(rayDirection, velocity);
+            float hitBodyDirVelocity = Vector2.Dot(rayDirection, hitBodyVel);
+
+            float relVel = rayDirVelocity - hitBodyDirVelocity;
+
+            float x = hit.distance - floatHeight;
+
+            float springForce = (x * floatSpringStrength) - (relVel * floatSpringDamper);
+
+            rb.AddForce(rayDirection * springForce);
+
+            if (hitBody != null)
+            {
+                hitBody.AddForceAtPosition(-rayDirection * springForce, hit.point);
+            }
         }
-        isSnapped = true;
+        else
+        {
+            Debug.Log("No hit");
+        }
     }
 }

@@ -5,11 +5,10 @@ using UnityEngine.UIElements;
 
 public enum LegState { Idle, Lifted, Snapped }
 
+// This scripts is attached to the move target, so transform refers to where the leg should be!
 public class LegMovement : MonoBehaviour
 {
     public LegState currentState = LegState.Idle;
-    // This scripts is attached to the move target, so transform refers to where the leg should be!
-    private Vector2 positionAnchor;
     [SerializeField] private Transform targetLeg;
     [SerializeField] private Transform intermediatePosition;
     [SerializeField] private float snapDistance = 1.0f;
@@ -19,6 +18,7 @@ public class LegMovement : MonoBehaviour
     [SerializeField] private float groundCheckDistance = 2f;
     [SerializeField] private LayerMask groundLayer;
     public bool isActiveLeg = false;
+    private Vector2 positionAnchor;
 
     private void Start()
     {
@@ -29,9 +29,8 @@ public class LegMovement : MonoBehaviour
     {
         checkGround();
 
-        bool isForceSnapping = BodyMovement.instance.movementMagnitude < 0.1f &&
-            BodyMovement.instance.lastMoveTime < Time.time + BodyMovement.instance.timeToSnap;
-
+        // Snap legs if the character is not moving for a certain time period
+        bool isForceSnapping = BodyMovement.instance.forceSnap;
         if (isForceSnapping)
         {
             currentState = LegState.Snapped;
