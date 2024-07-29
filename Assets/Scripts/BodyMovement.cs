@@ -9,6 +9,8 @@ public class BodyMovement : MonoBehaviour
     [SerializeField] private float speed = 3f;
     [SerializeField] private int activeLegIdx = 0;
     [SerializeField] private float bodyRotationSpeed = 5f;
+    [SerializeField] private float rotationAngleDivider = 2f;
+    [SerializeField] private Transform boxCastStartPoint;
     // TODO make this private
     public float lastMoveTime = 0f;
     // TODO make this private
@@ -22,6 +24,7 @@ public class BodyMovement : MonoBehaviour
     [SerializeField] private float floatSpringDamper = 5f;
     [SerializeField] private float heightCheckDistance = 2f;
     [SerializeField] private LayerMask springCheckLayer;
+    [SerializeField] private List<Transform> rayOrigins;
     private Rigidbody2D rb;
 
     public static BodyMovement instance;
@@ -76,7 +79,7 @@ public class BodyMovement : MonoBehaviour
         Vector2 vectorToAlignTo = legs[1].transform.position - legs[0].transform.position;
         Debug.DrawLine(legs[0].transform.position, legs[1].transform.position, Color.green);
 
-        float angle = Mathf.Atan2(vectorToAlignTo.y, vectorToAlignTo.x) * Mathf.Rad2Deg;
+        float angle = Mathf.Atan2(vectorToAlignTo.y, vectorToAlignTo.x) * Mathf.Rad2Deg / rotationAngleDivider;
 
         Quaternion targetRotation = Quaternion.Euler(0, 0, angle);
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * bodyRotationSpeed);
@@ -86,8 +89,7 @@ public class BodyMovement : MonoBehaviour
     {
 
         Vector2 rayDirection = Vector2.down;
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, rayDirection, heightCheckDistance, springCheckLayer);
-
+        RaycastHit2D hit = Physics2D.BoxCast(boxCastStartPoint.position, new Vector2(0.5f, 0.5f), 0f, rayDirection, heightCheckDistance, springCheckLayer);
         if (hit.collider != null)
         {
             Vector2 velocity = rb.velocity;

@@ -19,11 +19,17 @@ public class LegMovement : MonoBehaviour
     [SerializeField] private float groundCheckDistance = 2f;
     [SerializeField] private LayerMask groundLayer;
     public bool isActiveLeg = false;
+
+    [Header("Feet rotation")]
+    [SerializeField] private float feetRotationSpeed = 5f;
+    [SerializeField] private Transform feet;
+    private Quaternion defaultFeetRotation;
     private Vector2 positionAnchor;
 
     private void Start()
     {
         positionAnchor = transform.position;
+        defaultFeetRotation = feet.rotation;
     }
 
     void Update()
@@ -71,6 +77,23 @@ public class LegMovement : MonoBehaviour
             Vector3 point = hit.point;
             // TODO replace this constant so that the leg placement looks better? 
             transform.position = point + new Vector3(0, 0.1f, 0);
+        }
+
+        rotateFeet(hit);
+    }
+
+    private void rotateFeet(RaycastHit2D hit)
+    {
+        if (hit.collider != null && currentState != LegState.Lifted)
+        {
+            Vector2 normal = hit.normal;
+            float angle = Mathf.Atan2(normal.y, normal.x) * Mathf.Rad2Deg - 90f;
+            Quaternion targetRotation = Quaternion.Euler(0, 0, angle);
+            feet.rotation = Quaternion.Slerp(feet.rotation, targetRotation, Time.deltaTime * feetRotationSpeed);
+        }
+        else
+        {
+            feet.rotation = Quaternion.Slerp(feet.rotation, defaultFeetRotation, Time.deltaTime * feetRotationSpeed);
         }
     }
 

@@ -109,8 +109,8 @@ ScriptedImporter:
     spriteBone:
     - name: Feet_R
       guid: c9a86988617085d418e0950f3aa6530f
-      position: {x: 61.391415, y: 0.00001922235, z: 0}
-      rotation: {x: 0, y: 0, z: 0.684946, w: 0.7285939}
+      position: {x: 61.39147, y: 0.000008426788, z: 0}
+      rotation: {x: 0, y: 0, z: 0.6849462, w: 0.7285937}
       length: 49.006714
       parentId: 1
       color:
@@ -118,18 +118,18 @@ ScriptedImporter:
         rgba: 4278223103
     - name: Leg_R
       guid: 084108b150b50644b9ae2be6eb3b1662
-      position: {x: 84.09617, y: -0.000017492514, z: 0}
+      position: {x: 84.0961, y: -0.000019858266, z: 0}
       rotation: {x: 0, y: 0, z: -0.0069568926, w: 0.99997586}
-      length: 61.391445
+      length: 61.391476
       parentId: 2
       color:
         serializedVersion: 2
         rgba: 4294902015
     - name: Hip_R
       guid: 3bd09d96fea37ef4d9d431d0fd2446cb
-      position: {x: 12.883667, y: 160.20267, z: 0}
-      rotation: {x: 0, y: 0, z: -0.6995863, w: 0.71454823}
-      length: 84.09613
+      position: {x: 12.8845215, y: 160.20312, z: 0}
+      rotation: {x: 0, y: 0, z: -0.6995864, w: 0.7145481}
+      length: 84.09609
       parentId: -1
       color:
         serializedVersion: 2
@@ -824,27 +824,27 @@ ScriptedImporter:
     spriteBone:
     - name: Feet_L
       guid: 56f2208e3269a254f8c6fac15f02d26a
-      position: {x: 64.95478, y: -0.000047591067, z: 0}
-      rotation: {x: 0, y: 0, z: 0.7022476, w: 0.7119328}
-      length: 50.713398
+      position: {x: 64.954765, y: -0.000031459924, z: 0}
+      rotation: {x: 0, y: 0, z: 0.70224774, w: 0.7119327}
+      length: 50.713387
       parentId: 1
       color:
         serializedVersion: 2
         rgba: 4294967040
     - name: Leg_L
       guid: d9187045ae1b2e24da4a14d01ab32105
-      position: {x: 81.40947, y: -0.000012689603, z: 0}
+      position: {x: 81.40948, y: -0.000012209095, z: 0}
       rotation: {x: 0, y: 0, z: 0.009580816, w: 0.9999541}
-      length: 64.95475
+      length: 64.95478
       parentId: 2
       color:
         serializedVersion: 2
         rgba: 4278255360
     - name: Hip_L
       guid: 1198f50924a2a94458d377dd8710eb69
-      position: {x: 14.731964, y: 159.3129, z: 0}
-      rotation: {x: 0, y: 0, z: -0.709036, w: 0.70517236}
-      length: 81.409454
+      position: {x: 14.731842, y: 159.3128, z: 0}
+      rotation: {x: 0, y: 0, z: -0.709036, w: 0.7051723}
+      length: 81.40948
       parentId: -1
       color:
         serializedVersion: 2
@@ -1604,7 +1604,7 @@ ScriptedImporter:
     spriteBone:
     - name: Spine
       guid: ed8019d65212772499141ae8474a2412
-      position: {x: 61.84221, y: 126.864136, z: 0}
+      position: {x: 61.157745, y: 113.17493, z: 0}
       rotation: {x: 0, y: 0, z: -0.000752492, w: 0.9999997}
       length: 298.0529
       parentId: -1
@@ -2141,7 +2141,7 @@ ScriptedImporter:
     bones:
     - name: Spine
       guid: ed8019d65212772499141ae8474a2412
-      position: {x: 150.84221, y: 375.86414, z: 0}
+      position: {x: 150.15775, y: 362.17493, z: 0}
       rotation: {x: 0, y: 0, z: -0.000752492, w: 0.9999997}
       length: 298.05286
       parentId: -1
@@ -2150,26 +2150,26 @@ ScriptedImporter:
         rgba: 4278190335
     - name: Hip_L
       guid: 1198f50924a2a94458d377dd8710eb69
-      position: {x: 1.0651573, y: -116.54976, z: 0}
-      rotation: {x: 0, y: -0, z: -0.70850515, w: 0.7057057}
-      length: 81.409454
+      position: {x: 1.7288995, y: -102.859634, z: 0}
+      rotation: {x: 0, y: 0, z: -0.70850515, w: 0.70570564}
+      length: 81.40948
       parentId: 0
       color:
         serializedVersion: 2
         rgba: 4278255615
     - name: Leg_L
       guid: d9187045ae1b2e24da4a14d01ab32105
-      position: {x: 81.40947, y: -0.000013335591, z: 0}
+      position: {x: 81.409485, y: -0.000010140706, z: 0}
       rotation: {x: 0, y: 0, z: 0.0095807705, w: 0.9999541}
-      length: 64.95475
+      length: 64.954765
       parentId: 1
       color:
         serializedVersion: 2
         rgba: 4278255360
     - name: Feet_L
       guid: 56f2208e3269a254f8c6fac15f02d26a
-      position: {x: 64.95475, y: -0.000041339965, z: 0}
-      rotation: {x: 0, y: 0, z: 0.7022477, w: 0.7119328}
+      position: {x: 64.95475, y: -0.000024236982, z: 0}
+      rotation: {x: 0, y: 0, z: 0.70224774, w: 0.71193266}
       length: 50.713394
       parentId: 2
       color:
@@ -2177,26 +2177,26 @@ ScriptedImporter:
         rgba: 4294967040
     - name: Hip_R
       guid: 3bd09d96fea37ef4d9d431d0fd2446cb
-      position: {x: 286.2152, y: -115.230835, z: 0}
-      rotation: {x: 0, y: 0, z: -0.69904834, w: 0.7150744}
-      length: 84.09615
+      position: {x: 286.8799, y: -101.54016, z: 0}
+      rotation: {x: 0, y: 0, z: -0.69904846, w: 0.7150743}
+      length: 84.096115
       parentId: 0
       color:
         serializedVersion: 2
         rgba: 4294901760
     - name: Leg_R
       guid: 084108b150b50644b9ae2be6eb3b1662
-      position: {x: 84.096146, y: -0.000011260743, z: 0}
-      rotation: {x: 0, y: 0, z: -0.0069569377, w: 0.9999758}
-      length: 61.391453
+      position: {x: 84.096115, y: -0.000023690724, z: 0}
+      rotation: {x: 0, y: 0, z: -0.0069569373, w: 0.9999758}
+      length: 61.391483
       parentId: 4
       color:
         serializedVersion: 2
         rgba: 4294902015
     - name: Feet_R
       guid: c9a86988617085d418e0950f3aa6530f
-      position: {x: 61.39146, y: 0.00003226174, z: 0}
-      rotation: {x: 0, y: 0, z: 0.68494606, w: 0.7285939}
+      position: {x: 61.391487, y: 0.0000317711, z: 0}
+      rotation: {x: 0, y: 0, z: 0.6849462, w: 0.72859365}
       length: 49.00673
       parentId: 5
       color:
