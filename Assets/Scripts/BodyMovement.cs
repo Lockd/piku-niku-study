@@ -4,13 +4,17 @@ using UnityEngine;
 
 public class BodyMovement : MonoBehaviour
 {
+    [Header("Movement")]
     [SerializeField] private List<LegMovement> legs;
     [SerializeField] private float speed = 3f;
-    public float lastMoveTime = 0f;
-    public bool forceSnap = false;
-    public float timeToSnap = 0.35f;
     [SerializeField] private int activeLegIdx = 0;
-    public float movementMagnitude = 0f;
+    [SerializeField] private float bodyRotationSpeed = 5f;
+    // TODO make this private
+    public float lastMoveTime = 0f;
+    // TODO make this private
+    public bool forceSnap = false;
+    // TODO make this private
+    public float timeToSnap = 0.35f;
 
     [Header("Spring force")]
     [SerializeField] private float floatHeight = 1.4f;
@@ -42,21 +46,20 @@ public class BodyMovement : MonoBehaviour
     void Update()
     {
         float horizontal = Input.GetAxis("Horizontal");
-        // float vertical = Input.GetAxis("Vertical");
 
         Vector3 movement = new Vector3(horizontal, 0f, 0f);
-        movementMagnitude = movement.magnitude;
 
         if (movement.magnitude > 0.1f)
         {
             lastMoveTime = Time.time;
-            transform.position += movement * speed * Time.deltaTime;
             forceSnap = false;
         }
+        rb.velocity = new Vector2(movement.x * speed, rb.velocity.y);
 
         if (Time.time - lastMoveTime > timeToSnap && !forceSnap) forceSnap = true;
 
         springFloat();
+        rotateBody();
     }
 
     public void onLegSnap(LegMovement leg)
@@ -67,15 +70,27 @@ public class BodyMovement : MonoBehaviour
         legs[activeLegIdx].updateActiveLeg(true);
     }
 
+    private void rotateBody()
+    {
+        // TODO make this work for more than 2 legs
+        Vector2 vectorToAlignTo = legs[1].transform.position - legs[0].transform.position;
+        Debug.DrawLine(legs[0].transform.position, legs[1].transform.position, Color.green);
+
+        float angle = Mathf.Atan2(vectorToAlignTo.y, vectorToAlignTo.x) * Mathf.Rad2Deg;
+
+        Quaternion targetRotation = Quaternion.Euler(0, 0, angle);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * bodyRotationSpeed);
+    }
+
     private void springFloat()
     {
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, heightCheckDistance, springCheckLayer);
+
+        Vector2 rayDirection = Vector2.down;
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, rayDirection, heightCheckDistance, springCheckLayer);
 
         if (hit.collider != null)
         {
-            Debug.Log("Hit: " + hit.collider.gameObject.name);
             Vector2 velocity = rb.velocity;
-            Vector2 rayDirection = Vector2.down;
 
             Vector2 hitBodyVel = Vector2.zero;
             Rigidbody2D hitBody = hit.rigidbody;
@@ -92,6 +107,9 @@ public class BodyMovement : MonoBehaviour
             float x = hit.distance - floatHeight;
 
             float springForce = (x * floatSpringStrength) - (relVel * floatSpringDamper);
+
+            Vector3 debugLine = transform.position + new Vector3(rayDirection.x, rayDirection.y, 0f) * springForce;
+            Debug.DrawLine(transform.position, debugLine, Color.red);
 
             rb.AddForce(rayDirection * springForce);
 

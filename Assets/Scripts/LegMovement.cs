@@ -11,6 +11,7 @@ public class LegMovement : MonoBehaviour
     public LegState currentState = LegState.Idle;
     [SerializeField] private Transform targetLeg;
     [SerializeField] private Transform intermediatePosition;
+    [SerializeField] private Transform stepTarget;
     [SerializeField] private float snapDistance = 1.0f;
     [SerializeField] private float legLiftDistance = 0.1f;
     [SerializeField] private float transitionDistance = 0.1f;
@@ -45,7 +46,8 @@ public class LegMovement : MonoBehaviour
                 liftLeg();
                 break;
             case LegState.Snapped:
-                snapToTarget(!isForceSnapping);
+                Transform target = isForceSnapping ? transform : stepTarget;
+                snapToTarget(!isForceSnapping, target);
                 break;
             default:
                 break;
@@ -66,8 +68,8 @@ public class LegMovement : MonoBehaviour
         RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, groundCheckDistance, groundLayer);
         if (hit.collider != null)
         {
-            // Bad, that's a nono
             Vector3 point = hit.point;
+            // TODO replace this constant so that the leg placement looks better? 
             transform.position = point + new Vector3(0, 0.1f, 0);
         }
     }
@@ -90,11 +92,11 @@ public class LegMovement : MonoBehaviour
         }
     }
 
-    public void snapToTarget(bool shouldUpdateActiveLeg)
+    public void snapToTarget(bool shouldUpdateActiveLeg, Transform target)
     {
-        targetLeg.position = Vector3.Lerp(targetLeg.position, transform.position, legMoveSpeed * Time.deltaTime);
+        targetLeg.position = Vector3.Lerp(targetLeg.position, target.position, legMoveSpeed * Time.deltaTime);
 
-        float distance = Vector2.Distance(targetLeg.position, transform.position);
+        float distance = Vector2.Distance(targetLeg.position, target.position);
         // Debug.Log("Distance between target and current position " + distance);
         if (distance <= transitionDistance)
         {
