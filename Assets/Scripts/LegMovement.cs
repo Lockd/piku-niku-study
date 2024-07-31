@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public enum LegState { Idle, Lifted, Snapped }
 
@@ -106,6 +103,11 @@ public class LegMovement : MonoBehaviour
     {
         if (!isActiveLeg) return;
 
+        if (BodyMovement.instance.isGoingRight != transform.localScale.x > 0)
+        {
+            onChangeDirection();
+        }
+
         float distance = Vector2.Distance(transform.position, positionAnchor);
 
         if (distance > legLiftDistance && isActiveLeg)
@@ -113,6 +115,12 @@ public class LegMovement : MonoBehaviour
             positionAnchor = transform.position;
             currentState = LegState.Lifted;
         }
+    }
+
+    private void onChangeDirection()
+    {
+        Debug.Log("Leg should be flipped for " + gameObject.name);
+
     }
 
     public void snapToTarget(bool shouldUpdateActiveLeg, Transform target)
@@ -125,7 +133,7 @@ public class LegMovement : MonoBehaviour
         {
             if (shouldUpdateActiveLeg)
             {
-                Debug.Log("ON LEG SNAP IS TRIGGERED from " + gameObject.name);
+                // Debug.Log("ON LEG SNAP IS TRIGGERED from " + gameObject.name);
                 BodyMovement.instance.onLegSnap(this);
             }
             currentState = LegState.Idle;

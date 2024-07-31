@@ -7,6 +7,7 @@ public class BodyMovement : MonoBehaviour
     [Header("Movement")]
     [SerializeField] private List<LegMovement> legs;
     [SerializeField] private float speed = 3f;
+    public bool isGoingRight = true;
     [SerializeField] private int activeLegIdx = 0;
     [SerializeField] private float bodyRotationSpeed = 5f;
     [SerializeField] private float rotationAngleDivider = 2f;
@@ -56,6 +57,7 @@ public class BodyMovement : MonoBehaviour
         {
             lastMoveTime = Time.time;
             forceSnap = false;
+            isGoingRight = movement.x > 0;
         }
         rb.velocity = new Vector2(movement.x * speed, rb.velocity.y);
 
