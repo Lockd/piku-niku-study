@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(LineRenderer))]
+[ExecuteInEditMode, RequireComponent(typeof(LineRenderer))]
 public class LegDrawer : MonoBehaviour
 {
     [SerializeField] private List<Transform> legBones;
@@ -17,6 +17,11 @@ public class LegDrawer : MonoBehaviour
     void Update()
     {
         drawLeg();
+
+        if (lineRenderer.positionCount != legBones.Count)
+        {
+            lineRenderer.positionCount = legBones.Count;
+        }
     }
 
     private void drawLeg()

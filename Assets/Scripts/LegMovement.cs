@@ -16,6 +16,7 @@ public class LegMovement : MonoBehaviour
     [SerializeField] private float groundCheckDistance = 2f;
     [SerializeField] private LayerMask groundLayer;
     public bool isActiveLeg = false;
+    public bool canMoveLegs = true;
 
     [Header("Feet rotation")]
     [SerializeField] private float feetRotationSpeed = 5f;
@@ -81,6 +82,8 @@ public class LegMovement : MonoBehaviour
 
     private void rotateFeet(RaycastHit2D hit)
     {
+        if (feet == null) return;
+
         if (hit.collider != null && currentState != LegState.Lifted)
         {
             Vector2 normal = hit.normal;
@@ -99,14 +102,24 @@ public class LegMovement : MonoBehaviour
         isActiveLeg = isActive;
     }
 
+    public void onLegsFlip()
+    {
+        turnOffMovement();
+    }
+
+    private void turnOffMovement()
+    {
+        canMoveLegs = false;
+    }
+
+    private void turnOnMovement()
+    {
+        canMoveLegs = true;
+    }
+
     private void checkIfShouldLift()
     {
         if (!isActiveLeg) return;
-
-        if (BodyMovement.instance.isGoingRight != transform.localScale.x > 0)
-        {
-            onChangeDirection();
-        }
 
         float distance = Vector2.Distance(transform.position, positionAnchor);
 
@@ -115,12 +128,6 @@ public class LegMovement : MonoBehaviour
             positionAnchor = transform.position;
             currentState = LegState.Lifted;
         }
-    }
-
-    private void onChangeDirection()
-    {
-        Debug.Log("Leg should be flipped for " + gameObject.name);
-
     }
 
     public void snapToTarget(bool shouldUpdateActiveLeg, Transform target)

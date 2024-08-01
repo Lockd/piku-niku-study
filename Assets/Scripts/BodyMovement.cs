@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.U2D.IK;
 
 public class BodyMovement : MonoBehaviour
 {
@@ -12,6 +14,8 @@ public class BodyMovement : MonoBehaviour
     [SerializeField] private float bodyRotationSpeed = 5f;
     [SerializeField] private float rotationAngleDivider = 2f;
     [SerializeField] private Transform boxCastStartPoint;
+    [SerializeField] private List<Transform> flipTargets;
+    [SerializeField] private List<LimbSolver2D> limbSolvers;
     // TODO make this private
     public float lastMoveTime = 0f;
     // TODO make this private
@@ -57,7 +61,8 @@ public class BodyMovement : MonoBehaviour
         {
             lastMoveTime = Time.time;
             forceSnap = false;
-            isGoingRight = movement.x > 0;
+            bool newIsGoingRight = movement.x > 0;
+            if (newIsGoingRight != isGoingRight) flip();
         }
         rb.velocity = new Vector2(movement.x * speed, rb.velocity.y);
 
@@ -65,6 +70,20 @@ public class BodyMovement : MonoBehaviour
 
         springFloat();
         rotateBody();
+    }
+
+    private void flip()
+    {
+        isGoingRight = !isGoingRight;
+        foreach (Transform target in flipTargets)
+        {
+            target.localScale = new Vector3(target.localScale.x * -1, target.localScale.y, target.localScale.z);
+        }
+
+        foreach (LimbSolver2D limbSolver in limbSolvers)
+        {
+            limbSolver.flip = !limbSolver.flip;
+        }
     }
 
     public void onLegSnap(LegMovement leg)
