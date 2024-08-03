@@ -6,6 +6,7 @@ public enum LegState { Idle, Lifted, Snapped }
 public class LegMovement : MonoBehaviour
 {
     public LegState currentState = LegState.Idle;
+    [Header("Movement")]
     [SerializeField] private Transform targetLeg;
     [SerializeField] private Transform intermediatePosition;
     [SerializeField] private Transform stepTarget;
@@ -13,6 +14,9 @@ public class LegMovement : MonoBehaviour
     [SerializeField] private float legLiftDistance = 0.1f;
     [SerializeField] private float transitionDistance = 0.1f;
     [SerializeField] private float legMoveSpeed = 2f;
+
+    [Header("Ground checks")]
+    [SerializeField] private Transform raycastOrigin;
     [SerializeField] private float groundCheckDistance = 2f;
     [SerializeField] private LayerMask groundLayer;
     public bool isActiveLeg = false;
@@ -69,7 +73,7 @@ public class LegMovement : MonoBehaviour
 
     private void checkGround()
     {
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, groundCheckDistance, groundLayer);
+        RaycastHit2D hit = Physics2D.Raycast(raycastOrigin.position, Vector2.down, groundCheckDistance, groundLayer);
         if (hit.collider != null)
         {
             Vector3 point = hit.point;
