@@ -32,6 +32,9 @@ public class BodyMovement : MonoBehaviour
     [SerializeField] private List<Transform> rayOrigins;
     private Rigidbody2D rb;
 
+    [Header("Animation")]
+    [SerializeField] private Animator animator;
+
     public static BodyMovement instance;
 
     private void Awake()
@@ -56,12 +59,15 @@ public class BodyMovement : MonoBehaviour
         float horizontal = Input.GetAxis("Horizontal");
 
         Vector3 movement = new Vector3(horizontal, 0f, 0f);
-
-        if (movement.magnitude > 0.1f)
+        bool isMoving = movement.magnitude > 0.1f;
+        animator.SetBool("isMoving", isMoving);
+        if (isMoving)
         {
             lastMoveTime = Time.time;
             forceSnap = false;
             bool newIsGoingRight = movement.x > 0;
+
+            animator.SetBool("isMovingRight", newIsGoingRight);
             if (newIsGoingRight != isGoingRight) flip();
         }
         rb.velocity = new Vector2(movement.x * speed, rb.velocity.y);
