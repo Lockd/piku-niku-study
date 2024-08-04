@@ -4,6 +4,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.U2D.IK;
 
+[RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
 public class BodyMovement : MonoBehaviour
 {
     [Header("Movement")]
@@ -22,6 +23,12 @@ public class BodyMovement : MonoBehaviour
     public bool forceSnap = false;
     // TODO make this private
     public float timeToSnap = 0.35f;
+
+    [Header("Jumping")]
+    [SerializeField] private float jumpForce = 50f;
+    public bool isJumping = false;
+    [SerializeField] private float startCheckingForGroundAfter = 0.15f;
+    private float checkGroundAfter = 0f;
 
     [Header("Spring force")]
     [SerializeField] private float floatHeight = 1.4f;
@@ -56,8 +63,12 @@ public class BodyMovement : MonoBehaviour
 
     void Update()
     {
-        float horizontal = Input.GetAxis("Horizontal");
+        if (Input.GetKeyDown(KeyCode.Space) && !isJumping)
+        {
+            jump();
+        }
 
+        float horizontal = Input.GetAxis("Horizontal");
         Vector3 movement = new Vector3(horizontal, 0f, 0f);
         bool isMoving = movement.magnitude > 0.1f;
         animator.SetBool("isMoving", isMoving);
@@ -72,10 +83,37 @@ public class BodyMovement : MonoBehaviour
         }
         rb.velocity = new Vector2(movement.x * speed, rb.velocity.y);
 
-        if (Time.time - lastMoveTime > timeToSnap && !forceSnap) forceSnap = true;
+        if (Time.time - lastMoveTime > timeToSnap && !forceSnap && !isJumping) forceSnap = true;
 
-        springFloat();
+        // Spring forces are affecting jump force > jumps are different every time, not cool
+        bool canCheckForGround = Time.time > checkGroundAfter;
+        if (canCheckForGround) springFloat();
+
         rotateBody();
+    }
+
+    private void jump()
+    {
+        // zeroing out velocity so that the jump height is always consistent
+        rb.velocity = new Vector2(rb.velocity.x, 0f);
+        rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+        isJumping = true;
+        forceSnap = false;
+        checkGroundAfter = Time.time + startCheckingForGroundAfter;
+
+        foreach (LegMovement leg in legs)
+        {
+            leg.onJump();
+        }
+    }
+
+    public void onLand()
+    {
+        isJumping = false;
+        foreach (LegMovement leg in legs)
+        {
+            leg.onLand();
+        }
     }
 
     private void flip()
@@ -102,7 +140,7 @@ public class BodyMovement : MonoBehaviour
 
     private void rotateBody()
     {
-        // TODO make this work for more than 2 legs
+        // TODO make this work for more than 2 legs?
         Vector2 vectorToAlignTo = legs[1].transform.position - legs[0].transform.position;
         Debug.DrawLine(legs[0].transform.position, legs[1].transform.position, Color.green);
 
@@ -114,11 +152,25 @@ public class BodyMovement : MonoBehaviour
 
     private void springFloat()
     {
-
         Vector2 rayDirection = Vector2.down;
-        RaycastHit2D hit = Physics2D.BoxCast(boxCastStartPoint.position, new Vector2(0.5f, 0.5f), 0f, rayDirection, heightCheckDistance, springCheckLayer);
+        RaycastHit2D hit = Physics2D.Raycast(boxCastStartPoint.position, rayDirection, heightCheckDistance, springCheckLayer);
+        Debug.DrawLine(
+            boxCastStartPoint.position,
+            new Vector2(boxCastStartPoint.position.x, boxCastStartPoint.position.y) + rayDirection * heightCheckDistance,
+            Color.red
+        );
+
         if (hit.collider != null)
         {
+            // stop jumping
+            if (isJumping) onLand();
+
+            Debug.DrawLine(
+                boxCastStartPoint.position,
+                hit.point,
+                Color.blue
+            );
+
             Vector2 velocity = rb.velocity;
 
             Vector2 hitBodyVel = Vector2.zero;
@@ -147,9 +199,14 @@ public class BodyMovement : MonoBehaviour
                 hitBody.AddForceAtPosition(-rayDirection * springForce, hit.point);
             }
         }
-        else
-        {
-            Debug.Log("No hit");
-        }
+    }
+
+    // TODO explore that?
+    // as an option you can hide the legs under the body, as piku niku does and wait for the body to hit the ground
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        // TODO this is not the best idea since you can hit something with your head, and the the jump will be over
+        // Combine that with raycast check under the character, to check if the ground is under the character
+        // if (isJumping) onLand();
     }
 }

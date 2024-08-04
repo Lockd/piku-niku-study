@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public enum LegState { Idle, Lifted, Snapped }
+public enum LegState { Idle, Lifted, Snapped, Jumping }
 
 // This scripts is attached to the move target, so transform refers to where the leg should be!
 public class LegMovement : MonoBehaviour
@@ -10,6 +10,7 @@ public class LegMovement : MonoBehaviour
     [SerializeField] private Transform targetLeg;
     [SerializeField] private Transform intermediatePosition;
     [SerializeField] private Transform stepTarget;
+    [SerializeField] private Transform jumpTarget;
     [SerializeField] private float snapDistance = 1.0f;
     [SerializeField] private float legLiftDistance = 0.1f;
     [SerializeField] private float transitionDistance = 0.1f;
@@ -31,8 +32,12 @@ public class LegMovement : MonoBehaviour
     private void Start()
     {
         positionAnchor = transform.position;
-        defaultFeetRotation = feet.rotation;
+        if (feet != null) defaultFeetRotation = feet.rotation;
     }
+
+    // TODO have static lift feet position
+    // TODO have target snap feet position
+    // TODO keep the snap feet position when idle
 
     void Update()
     {
@@ -51,7 +56,10 @@ public class LegMovement : MonoBehaviour
                 checkIfShouldLift();
                 break;
             case LegState.Lifted:
-                liftLeg();
+                liftLeg(intermediatePosition);
+                break;
+            case LegState.Jumping:
+                liftLeg(jumpTarget);
                 break;
             case LegState.Snapped:
                 Transform target = isForceSnapping ? transform : stepTarget;
@@ -61,6 +69,7 @@ public class LegMovement : MonoBehaviour
                 break;
         }
 
+        // This is needed only for debugging
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             currentState = LegState.Lifted;
@@ -74,6 +83,8 @@ public class LegMovement : MonoBehaviour
     private void checkGround()
     {
         RaycastHit2D hit = Physics2D.Raycast(raycastOrigin.position, Vector2.down, groundCheckDistance, groundLayer);
+        Debug.DrawLine(raycastOrigin.position, raycastOrigin.position + Vector3.down * groundCheckDistance, Color.green);
+
         if (hit.collider != null)
         {
             Vector3 point = hit.point;
@@ -106,21 +117,6 @@ public class LegMovement : MonoBehaviour
         isActiveLeg = isActive;
     }
 
-    public void onLegsFlip()
-    {
-        turnOffMovement();
-    }
-
-    private void turnOffMovement()
-    {
-        canMoveLegs = false;
-    }
-
-    private void turnOnMovement()
-    {
-        canMoveLegs = true;
-    }
-
     private void checkIfShouldLift()
     {
         if (!isActiveLeg) return;
@@ -151,11 +147,24 @@ public class LegMovement : MonoBehaviour
         }
     }
 
-    public void liftLeg()
+    public void onJump()
     {
-        targetLeg.position = Vector3.Lerp(targetLeg.position, intermediatePosition.position, legMoveSpeed * Time.deltaTime);
+        currentState = LegState.Jumping;
+    }
 
-        if (Vector2.Distance(positionAnchor, transform.position) >= snapDistance)
+    public void onLand()
+    {
+        currentState = LegState.Idle;
+    }
+
+    public void liftLeg(Transform liftPosition)
+    {
+        targetLeg.position = Vector3.Lerp(targetLeg.position, liftPosition.position, legMoveSpeed * Time.deltaTime);
+
+        // Jumping state is turned off from ground check, not dependent on distance
+        if (currentState == LegState.Jumping) return;
+
+        if (currentState == LegState.Lifted && Vector2.Distance(positionAnchor, transform.position) >= snapDistance)
         {
             currentState = LegState.Snapped;
         }
