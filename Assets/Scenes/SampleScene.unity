@@ -1487,7 +1487,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3279347417442362882, guid: 4d527166319ebc24daeb5ecc57f2c83b, type: 3}
       propertyPath: floatHeight
-      value: 2.2
+      value: 2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3279347417442362882, guid: 4d527166319ebc24daeb5ecc57f2c83b, type: 3}
+      propertyPath: floatSpringDamper
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 3279347417442362882, guid: 4d527166319ebc24daeb5ecc57f2c83b, type: 3}
       propertyPath: heightCheckDistance

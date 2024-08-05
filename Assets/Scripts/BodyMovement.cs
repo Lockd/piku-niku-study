@@ -28,6 +28,7 @@ public class BodyMovement : MonoBehaviour
     [SerializeField] private float jumpForce = 50f;
     public bool isJumping = false;
     [SerializeField] private float startCheckingForGroundAfter = 0.15f;
+    [SerializeField] private float jumpingCheckHeightDistance = 1f;
     private float checkGroundAfter = 0f;
 
     [Header("Spring force")]
@@ -153,10 +154,12 @@ public class BodyMovement : MonoBehaviour
     private void springFloat()
     {
         Vector2 rayDirection = Vector2.down;
-        RaycastHit2D hit = Physics2D.Raycast(boxCastStartPoint.position, rayDirection, heightCheckDistance, springCheckLayer);
+        float checkDistance = isJumping ? jumpingCheckHeightDistance : heightCheckDistance;
+
+        RaycastHit2D hit = Physics2D.Raycast(boxCastStartPoint.position, rayDirection, checkDistance, springCheckLayer);
         Debug.DrawLine(
             boxCastStartPoint.position,
-            new Vector2(boxCastStartPoint.position.x, boxCastStartPoint.position.y) + rayDirection * heightCheckDistance,
+            new Vector2(boxCastStartPoint.position.x, boxCastStartPoint.position.y) + rayDirection * checkDistance,
             Color.red
         );
 
