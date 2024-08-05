@@ -14,6 +14,7 @@ public class BodyMovement : MonoBehaviour
     [SerializeField] private int activeLegIdx = 0;
     [SerializeField] private float bodyRotationSpeed = 5f;
     [SerializeField] private float rotationAngleDivider = 2f;
+    private Vector2 vectorToAlignTo = Vector2.right;
     [SerializeField] private Transform boxCastStartPoint;
     [SerializeField] private List<Transform> flipTargets;
     [SerializeField] private List<LimbSolver2D> limbSolvers;
@@ -50,9 +51,6 @@ public class BodyMovement : MonoBehaviour
         if (instance == null) instance = this;
         else Destroy(gameObject);
     }
-
-    // TODO add logic to check distance to the ground and spring back to it like in very very vale game
-    // https://www.youtube.com/watch?v=qdskE8PJy6Q&ab_channel=ToyfulGames
 
     private void Start()
     {
@@ -97,7 +95,7 @@ public class BodyMovement : MonoBehaviour
     {
         // zeroing out velocity so that the jump height is always consistent
         rb.velocity = new Vector2(rb.velocity.x, 0f);
-        rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+        rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Force);
         isJumping = true;
         forceSnap = false;
         checkGroundAfter = Time.time + startCheckingForGroundAfter;
@@ -141,10 +139,6 @@ public class BodyMovement : MonoBehaviour
 
     private void rotateBody()
     {
-        // TODO make this work for more than 2 legs?
-        Vector2 vectorToAlignTo = legs[1].transform.position - legs[0].transform.position;
-        Debug.DrawLine(legs[0].transform.position, legs[1].transform.position, Color.green);
-
         float angle = Mathf.Atan2(vectorToAlignTo.y, vectorToAlignTo.x) * Mathf.Rad2Deg / rotationAngleDivider;
 
         Quaternion targetRotation = Quaternion.Euler(0, 0, angle);
@@ -165,6 +159,9 @@ public class BodyMovement : MonoBehaviour
 
         if (hit.collider != null)
         {
+            vectorToAlignTo = Quaternion.Euler(0f, 0f, -90f) * hit.normal;
+            Debug.DrawRay(hit.point, vectorToAlignTo, Color.green);
+
             // stop jumping
             if (isJumping) onLand();
 
