@@ -18,12 +18,9 @@ public class BodyMovement : MonoBehaviour
     [SerializeField] private Transform boxCastStartPoint;
     [SerializeField] private List<Transform> flipTargets;
     [SerializeField] private List<LimbSolver2D> limbSolvers;
-    // TODO make this private
-    public float lastMoveTime = 0f;
-    // TODO make this private
     public bool forceSnap = false;
-    // TODO make this private
-    public float timeToSnap = 0.35f;
+    private float lastMoveTime = 0f;
+    private float timeToSnap = 0.35f;
 
     [Header("Jumping")]
     [SerializeField] private float jumpForce = 50f;
@@ -134,12 +131,16 @@ public class BodyMovement : MonoBehaviour
         }
     }
 
-    public void onLegSnap(LegMovement leg)
+    public void onLegSnap()
     {
-        leg.updateActiveLeg(false);
         activeLegIdx++;
         if (activeLegIdx >= legs.Count) activeLegIdx = 0;
         legs[activeLegIdx].updateActiveLeg(true);
+
+        for (int i = 0; i < legs.Count; i++)
+        {
+            if (i != activeLegIdx) legs[i].updateActiveLeg(false);
+        }
     }
 
     private void rotateBody()

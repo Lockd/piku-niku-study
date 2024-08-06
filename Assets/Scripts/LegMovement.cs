@@ -149,7 +149,7 @@ public class LegMovement : MonoBehaviour
             if (shouldUpdateActiveLeg)
             {
                 // Debug.Log("ON LEG SNAP IS TRIGGERED from " + gameObject.name);
-                BodyMovement.instance.onLegSnap(this);
+                BodyMovement.instance.onLegSnap();
             }
             currentState = LegState.Idle;
         }
