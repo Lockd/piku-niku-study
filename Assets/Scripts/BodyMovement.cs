@@ -95,7 +95,7 @@ public class BodyMovement : MonoBehaviour
     {
         // zeroing out velocity so that the jump height is always consistent
         rb.velocity = new Vector2(rb.velocity.x, 0f);
-        rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Force);
+        rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
         isJumping = true;
         forceSnap = false;
         checkGroundAfter = Time.time + startCheckingForGroundAfter;
@@ -126,6 +126,11 @@ public class BodyMovement : MonoBehaviour
         foreach (LimbSolver2D limbSolver in limbSolvers)
         {
             limbSolver.flip = !limbSolver.flip;
+        }
+
+        foreach (LegMovement leg in legs)
+        {
+            leg.onFlip();
         }
     }
 

@@ -18,6 +18,18 @@ public class GameController : MonoBehaviour
         {
             reloadScene();
         }
+
+        if (Input.GetKeyDown(KeyCode.F2))
+        {
+            Time.timeScale = Mathf.Clamp(Time.timeScale - 0.1f, 0.1f, 10f);
+            Debug.Log("Time scale: " + Time.timeScale);
+        }
+
+        if (Input.GetKeyDown(KeyCode.F1))
+        {
+            Time.timeScale = 1f;
+            Debug.Log("Time scale reset to: " + Time.timeScale);
+        }
     }
 
     public void reloadScene()

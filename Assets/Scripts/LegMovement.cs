@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public enum LegState { Idle, Lifted, Snapped, Jumping }
@@ -10,11 +11,13 @@ public class LegMovement : MonoBehaviour
     [SerializeField] private Transform targetLeg;
     [SerializeField] private Transform intermediatePosition;
     [SerializeField] private Transform stepTarget;
-    [SerializeField] private Transform jumpTarget;
+    [SerializeField] private List<Transform> jumpTargets;
+    private int currentJumpTarget = 0;
     [SerializeField] private float snapDistance = 1.0f;
     [SerializeField] private float legLiftDistance = 0.1f;
     [SerializeField] private float transitionDistance = 0.1f;
-    [SerializeField] private float legMoveSpeed = 2f;
+    [SerializeField] private float legWalkSpeed = 2f;
+    [SerializeField] private float legActionsSpeed = 2f;
 
     [Header("Ground checks")]
     [SerializeField] private Transform raycastOrigin;
@@ -59,7 +62,7 @@ public class LegMovement : MonoBehaviour
                 liftLeg(intermediatePosition);
                 break;
             case LegState.Jumping:
-                liftLeg(jumpTarget);
+                liftLeg(jumpTargets[currentJumpTarget]);
                 break;
             case LegState.Snapped:
                 Transform target = isForceSnapping ? transform : stepTarget;
@@ -117,6 +120,11 @@ public class LegMovement : MonoBehaviour
         isActiveLeg = isActive;
     }
 
+    public void onFlip()
+    {
+        positionAnchor = transform.position;
+    }
+
     private void checkIfShouldLift()
     {
         if (!isActiveLeg) return;
@@ -132,7 +140,7 @@ public class LegMovement : MonoBehaviour
 
     public void snapToTarget(bool shouldUpdateActiveLeg, Transform target)
     {
-        targetLeg.position = Vector3.Lerp(targetLeg.position, target.position, legMoveSpeed * Time.deltaTime);
+        targetLeg.position = Vector3.Lerp(targetLeg.position, target.position, legWalkSpeed * Time.deltaTime);
 
         float distance = Vector2.Distance(targetLeg.position, target.position);
         // Debug.Log("Distance between target and current position " + distance);
@@ -154,15 +162,19 @@ public class LegMovement : MonoBehaviour
 
     public void onLand()
     {
-        currentState = LegState.Idle;
+        currentState = LegState.Snapped;
     }
 
     public void liftLeg(Transform liftPosition)
     {
-        targetLeg.position = Vector3.Lerp(targetLeg.position, liftPosition.position, legMoveSpeed * Time.deltaTime);
+        targetLeg.position = Vector3.Lerp(targetLeg.position, liftPosition.position, legActionsSpeed * Time.deltaTime);
 
         // Jumping state is turned off from ground check, not dependent on distance
-        if (currentState == LegState.Jumping) return;
+        if (currentState == LegState.Jumping && Vector2.Distance(targetLeg.position, jumpTargets[currentJumpTarget].position) < transitionDistance)
+        {
+            currentJumpTarget++;
+            if (currentJumpTarget >= jumpTargets.Count) currentJumpTarget = 0;
+        }
 
         if (currentState == LegState.Lifted && Vector2.Distance(positionAnchor, transform.position) >= snapDistance)
         {
