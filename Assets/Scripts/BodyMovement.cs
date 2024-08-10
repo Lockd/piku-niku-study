@@ -2,25 +2,29 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Diagnostics;
 using UnityEngine.U2D.IK;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
 public class BodyMovement : MonoBehaviour
 {
     [Header("Movement")]
-    [SerializeField] private List<LegMovement> legs;
     [SerializeField] private float speed = 3f;
     public bool isGoingRight = true;
-    [SerializeField] private int activeLegIdx = 0;
-    [SerializeField] private float bodyRotationSpeed = 5f;
-    [SerializeField] private float rotationAngleDivider = 2f;
-    private Vector2 vectorToAlignTo = Vector2.right;
-    [SerializeField] private Transform boxCastStartPoint;
-    [SerializeField] private List<Transform> flipTargets;
-    [SerializeField] private List<LimbSolver2D> limbSolvers;
+    [SerializeField] private float timeToSnap = 0.15f;
     public bool forceSnap = false;
     private float lastMoveTime = 0f;
-    private float timeToSnap = 0.35f;
+    [SerializeField] private int activeLegIdx = 1;
+    [SerializeField] private Transform boxCastStartPoint;
+    [SerializeField] private List<LegMovement> legs;
+    private Vector2 vectorToAlignTo = Vector2.right;
+    [SerializeField] private List<Transform> flipTargets;
+    [SerializeField] private List<LimbSolver2D> limbSolvers;
+
+    [Header("Body rotation")]
+    [SerializeField] private float bodyRotationSpeed = 5f;
+    [SerializeField] private float rotationAngleDivider = 2f;
+    [SerializeField] private float maxBodyRotation = 30f;
 
     [Header("Jumping")]
     [SerializeField] private float jumpForce = 50f;
@@ -35,7 +39,6 @@ public class BodyMovement : MonoBehaviour
     [SerializeField] private float floatSpringDamper = 5f;
     [SerializeField] private float heightCheckDistance = 2f;
     [SerializeField] private LayerMask springCheckLayer;
-    [SerializeField] private List<Transform> rayOrigins;
     private Rigidbody2D rb;
 
     [Header("Animation")]
@@ -63,18 +66,24 @@ public class BodyMovement : MonoBehaviour
         {
             jump();
         }
+    }
 
+    void FixedUpdate()
+    {
         float horizontal = Input.GetAxis("Horizontal");
         Vector3 movement = new Vector3(horizontal, 0f, 0f);
         bool isMoving = movement.magnitude > 0.1f;
-        animator.SetBool("isMoving", isMoving);
+
+        if (animator != null) animator.SetBool("isMoving", isMoving);
+
         if (isMoving)
         {
             lastMoveTime = Time.time;
             forceSnap = false;
             bool newIsGoingRight = movement.x > 0;
 
-            animator.SetBool("isMovingRight", newIsGoingRight);
+            if (animator != null) animator.SetBool("isMovingRight", newIsGoingRight);
+
             if (newIsGoingRight != isGoingRight) flip();
         }
         rb.velocity = new Vector2(movement.x * speed, rb.velocity.y);
@@ -145,10 +154,16 @@ public class BodyMovement : MonoBehaviour
 
     private void rotateBody()
     {
+        vectorToAlignTo = legs[1].transform.position - legs[0].transform.position;
         float angle = Mathf.Atan2(vectorToAlignTo.y, vectorToAlignTo.x) * Mathf.Rad2Deg / rotationAngleDivider;
 
-        Quaternion targetRotation = Quaternion.Euler(0, 0, angle);
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * bodyRotationSpeed);
+        // Always keep the body straight when jumping
+        if (isJumping) angle = 0f;
+        float clampedAngle = Mathf.Clamp(angle, -maxBodyRotation, maxBodyRotation);
+
+        Quaternion targetRotation = Quaternion.Euler(0, 0, clampedAngle);
+        Quaternion newRotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.fixedDeltaTime * bodyRotationSpeed);
+        rb.SetRotation(newRotation);
     }
 
     private void springFloat()
@@ -165,9 +180,6 @@ public class BodyMovement : MonoBehaviour
 
         if (hit.collider != null)
         {
-            vectorToAlignTo = Quaternion.Euler(0f, 0f, -90f) * hit.normal;
-            Debug.DrawRay(hit.point, vectorToAlignTo, Color.green);
-
             // stop jumping
             if (isJumping) onLand();
 
@@ -206,13 +218,10 @@ public class BodyMovement : MonoBehaviour
             }
         }
     }
-
-    // TODO explore that?
-    // as an option you can hide the legs under the body, as piku niku does and wait for the body to hit the ground
     private void OnCollisionEnter2D(Collision2D other)
     {
         // TODO this is not the best idea since you can hit something with your head, and the the jump will be over
         // Combine that with raycast check under the character, to check if the ground is under the character
-        // if (isJumping) onLand();
+        if (isJumping) onLand();
     }
 }
